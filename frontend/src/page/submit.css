@@ -1,0 +1,41 @@
+.submit-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  padding: 2rem;
+}
+
+/* This is the wrapper with the border */
+.submit-image {
+  border: 4px solid #ccc;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  display: inline-block;
+  cursor: pointer;
+  scale: 0.8;
+}
+
+/* Hover effect on wrapper */
+.submit-image:hover {
+  border-color: #4a90e2;
+  box-shadow: 0 0 20px rgba(74, 144, 226, 0.4);
+}
+
+/* Shrink the image itself */
+.submit-image img {
+  width: 100px;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .submit-image-container {
+    padding: 1rem;
+  }
+}
