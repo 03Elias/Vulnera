@@ -7,58 +7,65 @@ import shutil
 import asyncio
 
 from frs_scanner.scanner import scan_upload
-from summarize_step.summarizer import summarize_all   # your summarizer.py module
+from analyze.static_analyze import static_analyze_entries
+from summarize_step.summarizer import summarize_all
+from analyze.llm_analyze import analyze_all
 
 load_dotenv()
 
 app = FastAPI(
-    title="FRS Scanner & Summarizer API",
-    description="Upload code (or a zip) to scan for source files and/or generate summaries via GPT-4o",
+    title="FRS Scanner Suite API",
+    description="Upload code (or a ZIP) to scan for source files, perform static analysis, generate summaries, or full danger analysis",
 )
-
 
 @app.get("/", summary="API Root")
 async def root():
-    return {"message": "Welcome to the FRS Scanner & Summarizer API"}
-
+    return {"message": "Welcome to the FRS Scanner Suite API"}
 
 @app.post(
     "/scan-upload/",
-    summary="Upload a file or ZIP to scan for source files",
+    summary="Scan for source files",
     response_model=list,
 )
 async def scan_upload_endpoint(file: UploadFile = File(...)):
-    """
-    Upload a single source file or a ZIP archive of a folder to scan.
-    Returns a list of { filename, folder, language, code } objects.
-    """
-    temp_dir = Path("./temp_uploads")
-    temp_dir.mkdir(exist_ok=True)
+    temp_dir = Path("./temp_uploads"); temp_dir.mkdir(exist_ok=True)
     temp_path = temp_dir / file.filename
-
-    # save upload
     with temp_path.open("wb") as buf:
         shutil.copyfileobj(file.file, buf)
-
     try:
-        results = scan_upload(temp_path, temp_dir)
-        return results
-
+        entries = scan_upload(temp_path, temp_dir)
+        return entries
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Scan failed: {e}")
-
     finally:
-        # cleanup
-        if temp_path.exists():
-            temp_path.unlink()
+        if temp_path.exists(): temp_path.unlink()
         for child in temp_dir.iterdir():
-            if child.is_dir() and child.name.startswith(temp_path.stem):
-                shutil.rmtree(child)
+            if child.is_dir() and child.name.startswith(temp_path.stem): shutil.rmtree(child)
 
+@app.post(
+    "/static-analyze-upload/",
+    summary="Static analysis of source files",
+    response_model=list,
+)
+async def static_analyze_upload_endpoint(file: UploadFile = File(...)):
+    temp_dir = Path("./temp_uploads"); temp_dir.mkdir(exist_ok=True)
+    temp_path = temp_dir / file.filename
+    with temp_path.open("wb") as buf:
+        shutil.copyfileobj(file.file, buf)
+    try:
+        entries = scan_upload(temp_path, temp_dir)
+        analyzed = static_analyze_entries(entries)
+        return analyzed
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Static analysis failed: {e}")
+    finally:
+        if temp_path.exists(): temp_path.unlink()
+        for child in temp_dir.iterdir():
+            if child.is_dir() and child.name.startswith(temp_path.stem): shutil.rmtree(child)
 
 @app.post(
     "/summarize-upload/",
-    summary="Upload code (or ZIP) and get file + project summaries",
+    summary="LLM-based summarization of code",
     response_model=list,
 )
 async def summarize_upload_endpoint(
@@ -66,39 +73,60 @@ async def summarize_upload_endpoint(
     concurrency: int = 5,
     model: str = "gpt-4o",
 ):
-    """
-    Upload a single source file or a ZIP archive of a folder.
-    - Scans for source files.
-    - Summarizes each file (1–2 sentences) and the overall project (2–3 sentences).
-    """
-    temp_dir = Path("./temp_uploads")
-    temp_dir.mkdir(exist_ok=True)
+    temp_dir = Path("./temp_uploads"); temp_dir.mkdir(exist_ok=True)
     temp_path = temp_dir / file.filename
-
-    # save upload
     with temp_path.open("wb") as buf:
         shutil.copyfileobj(file.file, buf)
-
     try:
-        # 1) scan for files
         entries = scan_upload(temp_path, temp_dir)
-
-        # 2) run the summarizer (uses OPENAI_API_KEY from env)
         enriched = await summarize_all(
             entries,
             max_concurrent=concurrency,
             model=model,
         )
-
         return enriched
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Summarization failed: {e}")
-
     finally:
-        # cleanup
-        if temp_path.exists():
-            temp_path.unlink()
+        if temp_path.exists(): temp_path.unlink()
         for child in temp_dir.iterdir():
-            if child.is_dir() and child.name.startswith(temp_path.stem):
-                shutil.rmtree(child)
+            if child.is_dir() and child.name.startswith(temp_path.stem): shutil.rmtree(child)
+
+@app.post(
+    "/analyze-upload/",
+    summary="Full LLM-based danger analysis of source files",
+    response_model=list,
+)
+async def analyze_upload_endpoint(
+    file: UploadFile = File(...),
+    concurrency: int = 5,
+    model: str = "gpt-4o",
+):
+    temp_dir = Path("./temp_uploads"); temp_dir.mkdir(exist_ok=True)
+    temp_path = temp_dir / file.filename
+    with temp_path.open("wb") as buf:
+        shutil.copyfileobj(file.file, buf)
+    try:
+        # 1) scan
+        entries = scan_upload(temp_path, temp_dir)
+        # 2) static analysis
+        entries = static_analyze_entries(entries)
+        # 3) summarization (adds file_summary and project_summary)
+        entries = await summarize_all(
+            entries,
+            max_concurrent=concurrency,
+            model=model,
+        )
+        # 4) LLM danger analysis
+        results = await analyze_all(
+            entries,
+            max_concurrent=concurrency,
+            model=model,
+        )
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Risk analysis failed: {e}")
+    finally:
+        if temp_path.exists(): temp_path.unlink()
+        for child in temp_dir.iterdir():
+            if child.is_dir() and child.name.startswith(temp_path.stem): shutil.rmtree(child)
