@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import shutil
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 
 from frs_scanner.scanner import scan_upload
 from analyze.static_analyze import static_analyze_entries
@@ -16,6 +17,14 @@ load_dotenv()
 app = FastAPI(
     title="FRS Scanner Suite API",
     description="Upload code (or a ZIP) to scan for source files, perform static analysis, generate summaries, or full danger analysis",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # your React dev server
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
 )
 
 @app.get("/", summary="API Root")
