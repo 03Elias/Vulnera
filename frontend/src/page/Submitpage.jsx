@@ -143,7 +143,7 @@ export default function Submitpage() {
     <div className={containerClass}>
       <div className="instruction-container">
         <h1>Upload Your Code Folder or File for Analysis</h1>
-        <p>Your code stays private; only findings are saved.</p>
+        <p>We analyze your submission for potential threats, but your code stays private, and no findings are saved.</p>
       </div>
 
       <div className="submit-image-container">
