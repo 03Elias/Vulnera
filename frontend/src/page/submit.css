@@ -1,3 +1,4 @@
+
 /* Hide submit image/button choice during upload */
 .progressing .submit-image-container,
 .progressing .choice-buttons {
@@ -36,7 +37,7 @@
 /* The filling bar */
 .progress-bar {
   height: 8px;
-  border-radius: 4px;
+  border-radius: 8px;
   background: linear-gradient(90deg, #4A90E2, #50E3C2);
   transition: width 0.1s linear;
   margin-bottom: 0.5rem;
