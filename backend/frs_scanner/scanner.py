@@ -1,10 +1,10 @@
-# frs_scanner/scanner.py
+
 
 import os
 from pathlib import Path
 import zipfile
 
-# Map file extensions → full language names
+
 EXTENSION_LANGUAGE_MAP = {
     "py": "Python",
     "js": "JavaScript",
@@ -21,7 +21,9 @@ EXTENSION_LANGUAGE_MAP = {
     "css": "CSS",
     "sql": "SQL",
     "ex": "Elixir",
-    "exs": "Elixir"
+    "exs": "Elixir",
+    "json": "JSON",
+    "node": "Node"
 }
 
 def get_language_from_extension(ext: str) -> str:
@@ -47,7 +49,7 @@ def process_file(file_path: Path, base_path: Path):
     except ValueError:
         rel_path = file_path.name
 
-    # Determine folder relative to base_path
+    
     rel_folder = rel_path.parent
     folder_str = rel_folder.as_posix() if rel_folder.parts else ''
 

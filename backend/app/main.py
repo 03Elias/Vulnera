@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import shutil
 import asyncio
+import os
 from fastapi.middleware.cors import CORSMiddleware
 
 from frs_scanner.scanner import scan_upload
@@ -19,9 +20,11 @@ app = FastAPI(
     description="Upload code (or a ZIP) to scan for source files, perform static analysis, generate summaries, or full danger analysis",
 )
 
+frontend_origin = os.getenv("FRONTEND_ORIGIN")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # your React dev server
+    allow_origins=[frontend_origin] if frontend_origin else [],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,

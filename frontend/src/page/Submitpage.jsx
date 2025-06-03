@@ -1,11 +1,17 @@
 // src/components/Submitpage.jsx
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import JSZip from 'jszip'
 import submitImage from '../assets/submit.png'
 
-// Read your env
+
 const rawApiUrl = import.meta.env.VITE_API_URL
 const API_URL = (rawApiUrl || window.location.origin).replace(/\/$/, '')
+
+
+const SUPPORTED_EXTENSIONS = [
+  'py','js','java','c','cpp','cc','cxx','cs',
+  'go','rs','ts','html','css','sql','ex','exs', 'json','node'
+]
 
 async function getFilesFromDir(dirHandle, root = '') {
   let files = []
@@ -32,11 +38,8 @@ export default function Submitpage() {
   const [progress, setProgress] = useState(0)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
-
-  // ref to the results container
   const resultsRef = useRef(null)
 
-  // Animate a ~20s progress bar
   useEffect(() => {
     if (!isUploading) return
     setProgress(0)
@@ -49,10 +52,8 @@ export default function Submitpage() {
     return () => clearInterval(timer)
   }, [isUploading])
 
-  // Auto-scroll to results when done
   useEffect(() => {
     if (result && !isUploading && resultsRef.current) {
-      // give a brief delay so CSS transition finishes
       setTimeout(() => {
         resultsRef.current.scrollIntoView({ behavior: 'smooth' })
       }, 300)
@@ -92,11 +93,46 @@ export default function Submitpage() {
       return
     }
 
+    // If no files were selected at all:
     if (!files.length) {
       setError('No files selected')
       return
     }
 
+    /*** ─── Check for unsupported extensions ─── ***/
+    // Extract the extension (part after last dot) from each file name:
+    const invalidExtensions = []
+    for (let f of files) {
+      const name = f.name.toLowerCase()
+      // Get substring after last '.'
+      const dotIndex = name.lastIndexOf('.')
+      if (dotIndex < 0) {
+        // No dot at all, consider it “no extension” = unsupported
+        invalidExtensions.push('(no extension)')
+      } else {
+        const ext = name.slice(dotIndex + 1)
+        if (!SUPPORTED_EXTENSIONS.includes(ext)) {
+          invalidExtensions.push(ext)
+        }
+      }
+    }
+    if (invalidExtensions.length) {
+      // Deduplicate the list, in case multiple files had same bad extension
+      const uniqueInvalid = Array.from(new Set(invalidExtensions))
+      // Build an error message:
+      const allowedList = SUPPORTED_EXTENSIONS.map(e => `.${e}`).join(', ')
+      setError(
+        `Sorry, we do not support ${
+          uniqueInvalid.length === 1
+            ? `.${uniqueInvalid[0]}`
+            : uniqueInvalid.map(e => `.${e}`).join(', ')
+        }. Please try files with these extensions: ${allowedList}.`
+      )
+      return
+    }
+    /*** ─────────────────────────────────────── ***/
+
+    // All good—proceed to zip & upload
     setUploading(true)
     try {
       const zip = new JSZip()
@@ -112,10 +148,10 @@ export default function Submitpage() {
         method: 'POST',
         body: fd,
       })
-      if (!res.ok) throw new Error(`Server ${res.status}`)
+      if (!res.ok) throw new Error(`Server responded with status ${res.status}`)
       const json = await res.json()
 
-      // ensure at least 15s
+      // Ensure at least 15s animation
       await new Promise(r => setTimeout(r, 15000))
       setResult(json)
     } catch (err) {
@@ -130,20 +166,14 @@ export default function Submitpage() {
   const overall = isFolderRes && result.find(x => x.overall_analysis).overall_analysis
   const files = Array.isArray(result) ? result.filter(x => !x.overall_analysis) : []
 
-  const containerClass = [
-    'submit-body-container',
-    isUploading ? 'progressing' : '',
-  ].join(' ')
-  const progressClass = [
-    'progress-container',
-    (!isUploading && result) ? 'complete' : '',
-  ].join(' ')
+  const containerClass = `submit-body-container ${isUploading ? 'progressing' : ''}`
+  const progressClass  = `progress-container  ${(!isUploading && result) ? 'complete' : ''}`
 
   return (
     <div className={containerClass}>
       <div className="instruction-container">
         <h1>Upload Your Code Folder or File for Analysis</h1>
-        <p>We analyze your submission for potential threats, but your code stays private, and no findings are saved.</p>
+        <p>Your code stays private and no findings are saved.</p>
       </div>
 
       <div className="submit-image-container">
@@ -174,32 +204,42 @@ export default function Submitpage() {
         </div>
       )}
 
-      {error && <p className="error">Error: {error}</p>}
+      {error && <p className="error">{error}</p>}
 
-      {/* resultsRef attaches here */}
       {result && (
         <div className="analysis-results" ref={resultsRef}>
+          {isFolderRes && (
+            <section
+              className="overall-analysis"
+              data-risk={overall.overall_danger}
+            >
+              <h2>Project Risk: {overall.overall_danger.toUpperCase()}</h2>
+              <p>{overall.overall_reason}</p>
+            </section>
+          )}
+
           {isFolderRes ? (
-            <>
-              <section className="overall-analysis">
-                <h2>Project Risk: {overall.overall_danger.toUpperCase()}</h2>
-                <p>{overall.overall_reason}</p>
-              </section>
-              <section className="file-list">
-                <h3>File‐by‐file Analysis</h3>
-                {files.map((file, i) => (
-                  <details key={i} className="file-detail">
-                    <summary>
-                      {file.filename} — Risk: {file.danger.toUpperCase()}
-                    </summary>
-                    <pre className="code-block">{file.code}</pre>
-                    <p><strong>Reason:</strong> {file.reason}</p>
-                  </details>
-                ))}
-              </section>
-            </>
+            <section className="file-list">
+              <h3>File‐by‐file Analysis</h3>
+              {files.map((file, i) => (
+                <details
+                  key={i}
+                  className="file-detail"
+                  data-risk={file.danger}
+                >
+                  <summary>
+                    {file.filename} — Risk: {file.danger.toUpperCase()}
+                  </summary>
+                  <pre className="code-block">{file.code}</pre>
+                  <p><strong>Reason:</strong> {file.reason}</p>
+                </details>
+              ))}
+            </section>
           ) : (
-            <section className="file-analysis">
+            <section
+              className="file-analysis"
+              data-risk={result[0].danger}
+            >
               <h2>Risk: {result[0].danger.toUpperCase()}</h2>
               <pre className="code-block">{result[0].code}</pre>
               <p><strong>Reason:</strong> {result[0].reason}</p>

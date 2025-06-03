@@ -16,7 +16,9 @@ LANGUAGE_MODULE_MAP = {
     "HTML": "analyze.rules.html_rules",
     "CSS": "analyze.rules.css_rules",
     "SQL": "analyze.rules.sql_rules",
-    "Elixir": "analyze.rules.elixir_rules"
+    "Elixir": "analyze.rules.elixir_rules",
+    "JSON": "analyze.rules.json_rules",
+    "Node": "analyze.rules.node_rules"
 }
 
 
