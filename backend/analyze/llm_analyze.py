@@ -86,11 +86,12 @@ async def analyze_overall(
     Returns JSON with 'overall_danger' and 'overall_reason'.
     """
     blocks = [format_file_payload(e) for e in entries]
+    joined_blocks = "\n\n".join(blocks)
     prompt = (
         "You are a security expert reviewing multiple code files. "
         "Based on the combined static findings and summaries, judge if the project as a whole poses a security danger. "
         "Respond with a JSON object containing 'overall_danger' ('yes' or 'no') and 'overall_reason' (a brief explanation, max 3 sentences)."  
-        f"\n\n{'\n\n'.join(blocks)}"
+         f"\n\n{joined_blocks}"
     )
     async with semaphore:
         resp = await client.chat.completions.create(
