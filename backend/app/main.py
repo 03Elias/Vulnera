@@ -20,11 +20,10 @@ app = FastAPI(
     description="Upload code (or a ZIP) to scan for source files, perform static analysis, generate summaries, or full danger analysis",
 )
 
-frontend_origin = os.getenv("FRONTEND_ORIGIN")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://vulnera-frontend.onrender.com"],
+    allow_origins=["http://localhost:5173",
+    "https://vulnera-5msn.onrender.com"  ],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
