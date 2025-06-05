@@ -24,7 +24,7 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin] if frontend_origin else [],
+    allow_origins=["https://vulnera-frontend.onrender.com"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
