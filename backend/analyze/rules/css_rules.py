@@ -1,7 +1,7 @@
 import re
 from typing import List, Dict, Any
 
-# Revised CSS patterns using regex to capture variations like url("javascript:")
+
 PATTERNS = [
     r"expression\(",
     r"url\(\s*['\"]?javascript:",

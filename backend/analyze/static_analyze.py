@@ -1,8 +1,7 @@
-# static_analysis/analyzer.py
 import importlib
 from typing import List, Dict, Any
 
-# Map full language names to their rule modules
+
 LANGUAGE_MODULE_MAP = {
     "Python": "analyze.rules.py_rules",
     "JavaScript": "analyze.rules.js_rules",

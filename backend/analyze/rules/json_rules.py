@@ -23,7 +23,7 @@ def find_issues(code: str) -> List[Dict[str, Any]]:
     try:
         parsed = json.loads(code)
     except Exception:
-        # invalid JSON: nothing to inspect
+        
         return findings
 
    

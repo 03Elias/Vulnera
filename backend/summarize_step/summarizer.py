@@ -1,5 +1,3 @@
-# summarizer.py
-
 import asyncio
 import json
 import os
@@ -7,7 +5,6 @@ from typing import List, Dict, Any, Optional
 
 from openai import AsyncOpenAI
 
-# Summarizer module for enriching FRS scanner output with LLM-generated summaries
 
 async def summarize_file(
     client: AsyncOpenAI,
@@ -72,16 +69,16 @@ async def summarize_all(
     client = AsyncOpenAI(api_key=key)
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    # Summarize each file in parallel
+    
     file_tasks = [summarize_file(client, e, semaphore, model) for e in entries]
     file_summaries = await asyncio.gather(*file_tasks)
 
-    # Only summarize project if more than one file
+    
     project_summary: Optional[str] = None
     if len(entries) > 1:
         project_summary = await summarize_project(client, entries, semaphore, model)
 
-    # Attach summaries and return
+    
     enriched: List[Dict[str, Any]] = []
     for entry, fs in zip(entries, file_summaries):
         new_entry = entry.copy()

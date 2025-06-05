@@ -52,25 +52,25 @@ async def analyze_file(
         )
     content = resp.choices[0].message.content.strip()
 
-    # Strip code fences if present
+    
     if content.startswith("```"):
-        # remove ``` markers
+        
         lines = content.splitlines()
-        # drop fence lines
+        
         if lines[0].startswith("```"):
             lines = lines[1:]
         if lines and lines[-1].startswith("```"):
             lines = lines[:-1]
         content = "\n".join(lines)
 
-    # Parse JSON
+    
     try:
         result = json.loads(content)
     except json.JSONDecodeError:
-        # fallback: return unknown with raw content
+        
         return {"danger": "unknown", "reason": content}
 
-    # Normalize fields
+    
     danger = result.get('danger', '').lower()
     reason = result.get('reason', '')
     return {"danger": danger, "reason": reason}
@@ -103,7 +103,7 @@ async def analyze_overall(
         )
     content = resp.choices[0].message.content.strip()
 
-    # Strip fences
+    
     if content.startswith("```"):
         lines = content.splitlines()
         if lines[0].startswith("```"):
@@ -135,7 +135,7 @@ async def analyze_all(
     client = AsyncOpenAI(api_key=key)
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    # File-level
+    
     tasks = [analyze_file(client, e, semaphore, model) for e in entries]
     file_results = await asyncio.gather(*tasks)
 
@@ -145,7 +145,7 @@ async def analyze_all(
         new_entry.update(fres)
         enriched.append(new_entry)
 
-    # Overall only if multiple files
+    
     if len(entries) > 1:
         overall = await analyze_overall(client, entries, semaphore, model)
         enriched.append({"overall_analysis": overall})

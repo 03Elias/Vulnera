@@ -1,5 +1,5 @@
 
-/* Hide submit image/button choice during upload */
+
 .progressing .submit-image-container,
 .progressing .choice-buttons {
   display: none;
@@ -34,7 +34,6 @@
   padding: 0.5rem 0;
 }
 
-/* The filling bar */
 .progress-bar {
   height: 8px;
   border-radius: 8px;
@@ -129,7 +128,7 @@ body {
 }
 
 
-/* General container styling */
+
 .analysis-results {
   padding: 2rem;
   background-color: #f4f7fb;
@@ -139,7 +138,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Project Risk section */
+
 .overall-analysis {
  
   background-color: #e8f9f1;

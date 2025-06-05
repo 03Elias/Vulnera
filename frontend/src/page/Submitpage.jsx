@@ -1,4 +1,3 @@
-// src/components/Submitpage.jsx
 import React, { useState, useEffect, useRef } from 'react'
 import JSZip from 'jszip'
 import submitImage from '../assets/submit.png'
@@ -93,21 +92,20 @@ export default function Submitpage() {
       return
     }
 
-    // If no files were selected at all:
+    
     if (!files.length) {
       setError('No files selected')
       return
     }
 
-    /*** ─── Check for unsupported extensions ─── ***/
-    // Extract the extension (part after last dot) from each file name:
+    
     const invalidExtensions = []
     for (let f of files) {
       const name = f.name.toLowerCase()
-      // Get substring after last '.'
+  
       const dotIndex = name.lastIndexOf('.')
       if (dotIndex < 0) {
-        // No dot at all, consider it “no extension” = unsupported
+        
         invalidExtensions.push('(no extension)')
       } else {
         const ext = name.slice(dotIndex + 1)
@@ -117,9 +115,9 @@ export default function Submitpage() {
       }
     }
     if (invalidExtensions.length) {
-      // Deduplicate the list, in case multiple files had same bad extension
+      
       const uniqueInvalid = Array.from(new Set(invalidExtensions))
-      // Build an error message:
+      
       const allowedList = SUPPORTED_EXTENSIONS.map(e => `.${e}`).join(', ')
       setError(
         `Sorry, we do not support ${
@@ -130,9 +128,7 @@ export default function Submitpage() {
       )
       return
     }
-    /*** ─────────────────────────────────────── ***/
-
-    // All good—proceed to zip & upload
+  
     setUploading(true)
     try {
       const zip = new JSZip()
@@ -151,7 +147,7 @@ export default function Submitpage() {
       if (!res.ok) throw new Error(`Server responded with status ${res.status}`)
       const json = await res.json()
 
-      // Ensure at least 15s animation
+      
       await new Promise(r => setTimeout(r, 15000))
       setResult(json)
     } catch (err) {
