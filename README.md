@@ -1,4 +1,4 @@
-# 🛡️ SafeCode — AI-Powered Code Vulnerability Scanner
+# 🛡️ Vulnera — AI-Powered Code Vulnerability Scanner
 
 **SafeCode** is a full-stack web application that allows users to upload a code folder or file for AI-assisted vulnerability scanning. It performs:
 
