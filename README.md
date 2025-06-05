@@ -28,14 +28,16 @@
 > (Frontend on Netlify, Backend on Render)
 
 ---
-cd backend
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-
-cd frontend
-npm install
-npm run dev
+## Backend
+- cd backend
+- python -m venv .venv
+- source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+- pip install -r requirements.txt
+- uvicorn app.main:app --reload
+---
+## Frontend
+- cd frontend
+- npm install
+- npm run dev
 
 
