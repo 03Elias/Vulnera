@@ -24,8 +24,8 @@
 
 ## 🌐 Live Demo
 
-> [🔗 Try the app here](https://your-app.netlify.app)  
-> (Frontend on Netlify, Backend on Render)
+> [🔗 Try the app here](https://vulnera-5msn.onrender.com/)  
+> (Frontend on Render, Backend on Render)
 
 ---
 ## Backend
