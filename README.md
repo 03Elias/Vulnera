@@ -1,15 +1,15 @@
-# 🛡️ Vulnera — AI-Powered Code Vulnerability Scanner
+#  Vulnera — AI-Powered Code Vulnerability Scanner
 
 **Vulnera** is a full-stack web application that allows users to upload a code folder or file for AI-assisted vulnerability scanning. It performs:
 
-- 🔍 Static keyword-based analysis for potentially dangerous code patterns
-- 🤖 AI (LLM) summarization of project and file intentions
-- 🧠 Final LLM-based risk assessment with explanations per file
-- ✅ Privacy-first: no summaries or findings are saved — your code stays private
+-  Static keyword-based analysis for potentially dangerous code patterns
+-  AI (LLM) summarization of project and file intentions
+-  Final LLM-based risk assessment with explanations per file
+-  Privacy-first: no summaries or findings are saved — your code stays private
 
 ---
 
-## 📦 Features
+##  Features
 
 - Upload entire code folders or individual files
 - Multi-language support (Python, JS, Java, C/C++, C#, SQL, HTML, CSS, Go, Rust, Elixir, and more)
@@ -22,7 +22,7 @@
 
 ---
 
-## 🌐 Live Demo
+##  Live Demo
 
 > [🔗 Try the app here](https://vulnera-5msn.onrender.com/)  
 > (Frontend on Render, Backend on Render)
